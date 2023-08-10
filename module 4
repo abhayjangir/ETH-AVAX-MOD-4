@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract Abhay is ERC20, Ownable {
+    uint256 public constant INITIAL_SUPPLY = 1000000 * (10 ** 18);
+
+    // Prize items and their costs
+    mapping(uint256 => uint256) public prizeCosts;
+    uint256 public nextPrizeId = 1;
+
+    constructor() ERC20("Abhay", "ABH") {
+        _mint(msg.sender, INITIAL_SUPPLY);
+
+        // Initialize prize items and their costs
+        addPrizeCost(1, 1000 * (10 ** 18)); 
+        addPrizeCost(2, 500 * (10 ** 18)); 
+        addPrizeCost(3, 200 * (10 ** 18));  
+        addPrizeCost(4, 100 * (10 ** 18)); 
+    }
+
+
+    function addPrizeCost(uint256 prizeId, uint256 cost) public onlyOwner {
+        prizeCosts[prizeId] = cost;
+    }
+
+    function mint(address account, uint256 amount) public onlyOwner {
+        _mint(account, amount);
+    }
+
+    function transferTokens(address to, uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        _transfer(msg.sender, to, amount);
+    }
+
+
+    function redeemPrize(uint256 prizeId) public {
+        uint256 itemCost = prizeCosts[prizeId];
+        require(itemCost > 0, "Prize not found");
+        require(balanceOf(msg.sender) >= itemCost, "Insufficient balance");
+        
+       
+        _burn(msg.sender, itemCost);
+        
+     
+    }
+
+  
+    function getTokenBalance(address account) public view returns (uint256) {
+        return balanceOf(account);
+    }
+
+ 
+    function burnTokens(uint256 amount) public {
+        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
+        _burn(msg.sender, amount);
+    }
+}
